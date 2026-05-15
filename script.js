@@ -416,28 +416,6 @@ function openWhatsapp(payload) {
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
 }
 
-function printEstimate() {
-  const payload = leadPayload();
-  $("printReport").innerHTML = `
-    <h1>HDB Calculator Estimate</h1>
-    <p>Generated from the HDB calculator.</p>
-    <p><strong>Name:</strong> ${payload.name || "-"}<br>
-    <strong>WhatsApp:</strong> ${payload.phone || "-"}<br>
-    <strong>Preferred contact time:</strong> ${payload.contactTime || "-"}</p>
-    <h2>Figures Keyed In</h2>
-    <pre>${payload.inputSummary}</pre>
-    <h2>Calculated Estimate</h2>
-    <pre>${payload.summary}</pre>
-    <p><strong>Notes:</strong> ${payload.notes || "-"}</p>
-    <p>This estimate is based on user-entered figures. Final amounts may differ depending on HDB, CPF Board, IRAS, bank, law firm, and prevailing rules at the point of transaction.</p>
-  `;
-  document.body.classList.add("printing");
-  window.print();
-  setTimeout(() => {
-    document.body.classList.remove("printing");
-  }, 500);
-}
-
 function updateCommissionVisibility() {
   $("sellerCommissionFields").classList.toggle("muted", !$("sellerCommissionOn").checked);
   $("buyerCommissionFields").classList.toggle("muted", !$("buyerCommissionOn").checked);
@@ -495,8 +473,6 @@ $("closeLeadForm").addEventListener("click", () => {
 $("leadModal").addEventListener("click", (event) => {
   if (event.target === $("leadModal")) $("leadModal").hidden = true;
 });
-
-$("printEstimate").addEventListener("click", printEstimate);
 
 $("leadForm").addEventListener("submit", async (event) => {
   event.preventDefault();
