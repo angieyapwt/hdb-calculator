@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HDB Sale & Purchase Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Singapore HDB planning tool</p>
+          <h1>Estimate your HDB sale proceeds or purchase cash needed.</h1>
+          <p class="intro">
+            A simple calculator for early-stage planning. Figures are estimates and should be verified with HDB, CPF Board, IRAS, your bank, and your conveyancing party before you commit.
+          </p>
+        </div>
+        <div class="hero-panel">
+          <span class="panel-label">Quick view</span>
+          <strong id="quickTotal">$0</strong>
+          <small id="quickLabel">Estimated sale proceeds</small>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="HDB calculator">
+        <div class="toggle-wrap">
+          <button class="mode-btn active" type="button" data-mode="seller">I am selling</button>
+          <button class="mode-btn" type="button" data-mode="buyer">I am buying</button>
+          <button class="mode-btn" type="button" data-mode="both">Buying & selling</button>
+        </div>
+
+        <form class="calculator" id="calculator">
+          <section class="form-panel active" id="sellerPanel" aria-label="Seller calculator">
+            <div class="panel-heading">
+              <h2>Seller calculator</h2>
+              <p>Estimate the cash proceeds after loan, CPF refund, fees, and commission.</p>
+            </div>
+
+            <div class="grid">
+              <label class="field">
+                <span>Selling price</span>
+                <input class="money-input" type="text" inputmode="decimal" id="sellingPrice" value="$650,000">
+              </label>
+              <label class="field">
+                <span>Outstanding loan</span>
+                <input class="money-input" type="text" inputmode="decimal" id="sellerLoan" value="$220,000">
+              </label>
+              <label class="field">
+                <span>CPF refund with accrued interest</span>
+                <input class="money-input" type="text" inputmode="decimal" id="cpfRefund" value="$180,000">
+              </label>
+              <label class="field">
+                <span>Outstanding HIP, if any</span>
+                <input class="money-input" type="text" inputmode="decimal" id="outstandingHip" value="$0">
+              </label>
+              <label class="field">
+                <span>Bank penalty, if any</span>
+                <input class="money-input" type="text" inputmode="decimal" id="bankPenalty" value="$0">
+              </label>
+              <label class="field">
+                <span>Resale levy, if applicable</span>
+                <input class="money-input" type="text" inputmode="decimal" id="resaleLevy" value="$0">
+              </label>
+              <label class="field">
+                <span>Legal fee</span>
+                <input class="money-input" type="text" inputmode="decimal" id="sellerLegal" value="$2,500">
+                <small>Usually around $2,000 to $3,000.</small>
+              </label>
+              <label class="field">
+                <span>Miscellaneous fee</span>
+                <input class="money-input" type="text" inputmode="decimal" id="sellerMisc" value="$800">
+                <small>Usually around $500 to $1,000 for resale application, HDB admin, HDB search, HDB survey, HDB caveat, pro-rated town council, and property tax.</small>
+              </label>
+            </div>
+
+            <div class="commission-row">
+              <label class="switch">
+                <input type="checkbox" id="sellerCommissionOn" checked>
+                <span></span>
+                Include agent commission + GST
+              </label>
+              <div class="commission-fields" id="sellerCommissionFields">
+                <label class="field compact">
+                  <span>Commission rate</span>
+                  <input type="number" min="0" step="0.1" inputmode="decimal" id="sellerCommissionRate" value="2">
+                  <small>% of selling price, with 9% GST added.</small>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-panel" id="buyerPanel" aria-label="Buyer calculator">
+            <div class="panel-heading">
+              <h2>Buyer calculator</h2>
+              <p>Estimate cash/CPF required after loan, grants, stamp duty, fees, and commission.</p>
+            </div>
+
+            <div class="grid">
+              <label class="field">
+                <span>Purchase price</span>
+                <input class="money-input" type="text" inputmode="decimal" id="purchasePrice" value="$650,000">
+              </label>
+              <label class="field">
+                <span>HDB valuation</span>
+                <input class="money-input" type="text" inputmode="decimal" id="valuation" value="$640,000">
+              </label>
+              <label class="field">
+                <span>Loan type</span>
+                <select id="loanType">
+                  <option>HDB loan</option>
+                  <option>Bank loan</option>
+                  <option>No loan</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Approved loan amount</span>
+                <input class="money-input" type="text" inputmode="decimal" id="approvedLoan" value="$480,000">
+                <small>Calculator caps this at 75% of the purchase price.</small>
+              </label>
+              <label class="field">
+                <span>Total OA available</span>
+                <input class="money-input" type="text" inputmode="decimal" id="cpfAvailable" value="$80,000">
+              </label>
+              <label class="field">
+                <span>Total grant</span>
+                <input class="money-input" type="text" inputmode="decimal" id="cpfGrant" value="$0">
+                <small>Subjected to approval from HDB.</small>
+              </label>
+              <label class="field">
+                <span>SPR ABSD</span>
+                <select id="prAbsd">
+                  <option value="0">Not applicable</option>
+                  <option value="5">5%, if applicable</option>
+                </select>
+                <small>ABSD is included here for Singapore PR scenarios only.</small>
+              </label>
+              <label class="field">
+                <span>Legal fee</span>
+                <input class="money-input" type="text" inputmode="decimal" id="buyerLegal" value="$2,500">
+                <small>Usually around $2,000 to $3,000.</small>
+              </label>
+              <label class="field">
+                <span>Miscellaneous fee</span>
+                <input class="money-input" type="text" inputmode="decimal" id="buyerMisc" value="$800">
+                <small>Usually around $500 to $1,000 for resale application, valuation, HDB admin, HDB search, HDB survey, HDB caveat, and HPS insurance.</small>
+              </label>
+            </div>
+
+            <div class="commission-row">
+              <label class="switch">
+                <input type="checkbox" id="buyerCommissionOn" checked>
+                <span></span>
+                Include agent commission + GST
+              </label>
+              <div class="commission-fields muted" id="buyerCommissionFields">
+                <label class="field compact">
+                  <span>Commission rate</span>
+                  <input type="number" min="0" step="0.1" inputmode="decimal" id="buyerCommissionRate" value="1">
+                  <small>% of purchase price, with 9% GST added.</small>
+                </label>
+              </div>
+            </div>
+          </section>
+        </form>
+
+        <aside class="result-card" aria-live="polite">
+          <p class="result-kicker" id="resultKicker">Estimated seller cash proceeds</p>
+          <div class="result-total" id="resultTotal">$0</div>
+          <div class="breakdown" id="breakdown"></div>
+          <div class="compliance">
+            This calculator provides an estimate based on the figures entered. Final amounts may differ depending on HDB, CPF Board, IRAS, your bank, law firm, and prevailing rules at the point of transaction.
+          </div>
+        </aside>
+      </section>
+
+      <section class="cta">
+        <div>
+          <h2>Want to sense-check your numbers before making the next move?</h2>
+          <p>Share your estimate and get a clearer view of what the numbers may mean for your next HDB decision.</p>
+        </div>
+        <button class="cta-button" type="button" id="openLeadForm">Sense check my figures</button>
+      </section>
+
+      <div class="modal-backdrop" id="leadModal" hidden>
+        <section class="modal" role="dialog" aria-modal="true" aria-labelledby="leadModalTitle">
+          <div class="modal-heading">
+            <div>
+              <p class="eyebrow">Send estimate</p>
+              <h2 id="leadModalTitle">Share your figures for a quick sense-check</h2>
+            </div>
+            <button class="icon-button" type="button" id="closeLeadForm" aria-label="Close form">X</button>
+          </div>
+
+          <form id="leadForm" class="lead-form">
+            <div class="grid">
+              <label class="field">
+                <span>Name</span>
+                <input type="text" id="leadName" autocomplete="name" required>
+              </label>
+              <label class="field">
+                <span>WhatsApp number</span>
+                <input type="tel" id="leadPhone" autocomplete="tel" required placeholder="+65 9123 4567">
+              </label>
+              <label class="field">
+                <span>Preferred contact time</span>
+                <select id="leadContactTime">
+                  <option>Anytime</option>
+                  <option>Morning</option>
+                  <option>Afternoon</option>
+                  <option>Evening</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Notes</span>
+              <textarea id="leadNotes" rows="3" placeholder="Anything you want me to know before I check the figures?"></textarea>
+            </label>
+
+            <div class="estimate-preview">
+              <span>Estimate summary</span>
+              <pre id="leadEstimatePreview"></pre>
+            </div>
+
+            <div class="form-actions">
+              <button class="secondary-button" type="button" id="printEstimate">Save PDF</button>
+              <button class="cta-button" type="submit">Send via WhatsApp</button>
+            </div>
+            <p class="form-note" id="leadStatus">
+              This will open WhatsApp with the estimate details.
+            </p>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
