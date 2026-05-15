@@ -401,8 +401,11 @@ h1 {
   line-height: 1.5;
 }
 
-.cta .advisor-contact {
+.advisor-contact {
+  margin: 0;
+  color: var(--muted);
   font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .advisor-contact a {
