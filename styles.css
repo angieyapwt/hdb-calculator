@@ -524,6 +524,21 @@ h1 {
   line-height: 1.5;
 }
 
+.print-report {
+  display: none;
+}
+
+.print-report h1,
+.print-report h2 {
+  color: #123f6f;
+}
+
+.print-report pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  line-height: 1.45;
+}
+
 @media (max-width: 920px) {
   .hero,
   .workspace {
@@ -533,6 +548,31 @@ h1 {
   .hero-panel,
   .result-card {
     position: static;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  body.printing .hero,
+  body.printing .workspace,
+  body.printing .cta,
+  body.printing .modal-backdrop {
+    display: none !important;
+  }
+
+  body.printing .app {
+    width: 100%;
+    padding: 0;
+  }
+
+  body.printing .print-report {
+    display: block;
+    color: #142235;
+    padding: 24px;
+    font-size: 12pt;
   }
 }
 

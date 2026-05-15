@@ -418,40 +418,24 @@ function openWhatsapp(payload) {
 
 function printEstimate() {
   const payload = leadPayload();
-  const html = `
-    <html>
-      <head>
-        <title>HDB Estimate</title>
-        <style>
-          body { font-family: Arial, sans-serif; color: #142235; padding: 32px; line-height: 1.5; }
-          h1 { color: #123f6f; margin-bottom: 4px; }
-          pre { white-space: pre-wrap; font-family: Arial, sans-serif; border-top: 1px solid #d8e2ef; padding-top: 16px; }
-          .muted { color: #66758a; }
-        </style>
-      </head>
-      <body>
-        <h1>HDB Calculator Estimate</h1>
-        <p class="muted">Generated from the HDB calculator.</p>
-        <p><strong>Name:</strong> ${payload.name || "-"}<br>
-        <strong>WhatsApp:</strong> ${payload.phone || "-"}<br>
-        <strong>Preferred contact time:</strong> ${payload.contactTime || "-"}</p>
-        <h2>Figures Keyed In</h2>
-        <pre>${payload.inputSummary}</pre>
-        <h2>Calculated Estimate</h2>
-        <pre>${payload.summary}</pre>
-        <p><strong>Notes:</strong> ${payload.notes || "-"}</p>
-        <p class="muted">This estimate is based on user-entered figures. Final amounts may differ depending on HDB, CPF Board, IRAS, bank, law firm, and prevailing rules at the point of transaction.</p>
-      </body>
-    </html>
+  $("printReport").innerHTML = `
+    <h1>HDB Calculator Estimate</h1>
+    <p>Generated from the HDB calculator.</p>
+    <p><strong>Name:</strong> ${payload.name || "-"}<br>
+    <strong>WhatsApp:</strong> ${payload.phone || "-"}<br>
+    <strong>Preferred contact time:</strong> ${payload.contactTime || "-"}</p>
+    <h2>Figures Keyed In</h2>
+    <pre>${payload.inputSummary}</pre>
+    <h2>Calculated Estimate</h2>
+    <pre>${payload.summary}</pre>
+    <p><strong>Notes:</strong> ${payload.notes || "-"}</p>
+    <p>This estimate is based on user-entered figures. Final amounts may differ depending on HDB, CPF Board, IRAS, bank, law firm, and prevailing rules at the point of transaction.</p>
   `;
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    $("leadStatus").textContent = "Your browser blocked the PDF window. Please allow pop-ups to save the PDF.";
-    return;
-  }
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.print();
+  document.body.classList.add("printing");
+  window.print();
+  setTimeout(() => {
+    document.body.classList.remove("printing");
+  }, 500);
 }
 
 function updateCommissionVisibility() {
