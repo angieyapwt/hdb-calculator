@@ -1,6 +1,6 @@
 const GST_RATE = 0.09;
-const WHATSAPP_NUMBER = "65YOURNUMBER";
-const GOOGLE_SCRIPT_URL = "";
+const WHATSAPP_NUMBER = "+6583963088";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfJ-p_WtksPVa5CyTKxOYiephFtS5GNIj5x9A2kxGAxZubncKW8_WaQi6IrHyJm2AW/exec";
 
 const state = {
   mode: "seller",
