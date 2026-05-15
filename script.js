@@ -374,6 +374,7 @@ function leadPayload() {
     inputs: fullInputDetails(),
     inputSummary: fullInputSummary(),
     summary: estimateSummary(),
+    dataConsent: $("dataConsent").checked,
   };
 }
 
@@ -476,6 +477,11 @@ $("leadModal").addEventListener("click", (event) => {
 
 $("leadForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (!$("dataConsent").checked) {
+    $("leadStatus").textContent = "Please acknowledge the data collection notice before submitting.";
+    return;
+  }
+
   const payload = leadPayload();
   $("leadStatus").textContent = "Preparing your estimate and opening WhatsApp...";
 
@@ -483,7 +489,7 @@ $("leadForm").addEventListener("submit", async (event) => {
     const result = await submitLead(payload);
     $("leadStatus").textContent = result.skipped
       ? "WhatsApp is opening now. Google Sheets logging will start after the Apps Script URL is added."
-      : "Logged successfully. WhatsApp is opening now.";
+      : "Submitted. WhatsApp is opening now.";
   } catch (error) {
     $("leadStatus").textContent = "WhatsApp is opening now. Google Sheets logging could not be completed.";
   }
