@@ -412,7 +412,8 @@ function openWhatsapp(payload) {
     `Notes: ${payload.notes || "-"}`,
   ].join("\n");
 
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
+  const phone = WHATSAPP_NUMBER.replace(/[^\d]/g, "");
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
 }
 
 function printEstimate() {
@@ -443,7 +444,7 @@ function printEstimate() {
       </body>
     </html>
   `;
-  const printWindow = window.open("", "_blank", "noopener");
+  const printWindow = window.open("", "_blank");
   if (!printWindow) {
     $("leadStatus").textContent = "Your browser blocked the PDF window. Please allow pop-ups to save the PDF.";
     return;
