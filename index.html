@@ -169,7 +169,7 @@
           <div class="result-total" id="resultTotal">$0</div>
           <div class="breakdown" id="breakdown"></div>
           <div class="compliance">
-            This calculator provides an estimate based on the figures entered. Final amounts may differ depending on HDB, CPF Board, IRAS, your bank, law firm, and prevailing rules at the point of transaction.
+            This calculator provides an estimate based on the figures entered. Final amounts may differ depending on HDB, CPF Board, IRAS, your bank, law firm, and prevailing rules at the point of transaction. Figures entered here are not recorded unless you submit the form.
           </div>
         </aside>
       </section>
@@ -223,11 +223,18 @@
               <pre id="leadEstimatePreview"></pre>
             </div>
 
+            <label class="consent-check">
+              <input type="checkbox" id="dataConsent" required>
+              <span>
+                By submitting this form, I consent to my name, contact details, notes, and calculator figures being collected and used solely to review this enquiry, prepare an estimate record, and contact me about the figures provided.
+              </span>
+            </label>
+
             <div class="form-actions">
-              <button class="cta-button" type="submit">Send via WhatsApp</button>
+              <button class="cta-button" type="submit">Submit and open WhatsApp</button>
             </div>
             <p class="form-note" id="leadStatus">
-              This will open WhatsApp with the estimate details.
+              Submission records the details above and then opens WhatsApp with the estimate details.
             </p>
           </form>
         </section>

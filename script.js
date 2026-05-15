@@ -477,6 +477,16 @@ $("leadModal").addEventListener("click", (event) => {
 
 $("leadForm").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const name = $("leadName").value.trim();
+  const phone = $("leadPhone").value.trim();
+
+  if (!name || !phone) {
+    $("leadStatus").textContent = "Please enter your name and WhatsApp number before submitting.";
+    if (!name) $("leadName").focus();
+    else $("leadPhone").focus();
+    return;
+  }
+
   if (!$("dataConsent").checked) {
     $("leadStatus").textContent = "Please acknowledge the data collection notice before submitting.";
     return;
