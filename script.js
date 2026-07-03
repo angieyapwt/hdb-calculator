@@ -188,8 +188,8 @@ function getBuyerData() {
         ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
         : []),
       { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
-      { label: "Deduction of OA Amount", value: -cpf },
       { label: "Total grant", value: -grant },
+      { label: "Deduction of OA Amount", value: -cpf },
       { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
     ],
   };
