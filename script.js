@@ -5,6 +5,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfJ-p_WtksPV
 const state = {
   mode: "seller",
   valuationEdited: false,
+  secondHdbPaydownEdited: false,
 };
 
 const money = new Intl.NumberFormat("en-SG", {
@@ -147,7 +148,7 @@ function getBuyerData(options = {}) {
   const loanShortfall = $("loanType").value === "No loan" ? 0 : Math.max(maxLoan - loan, 0);
   const secondHdbLoanPaydown =
     state.mode === "both" && $("loanType").value === "HDB loan"
-      ? Math.min(Math.max(options.sellerProceeds || 0, 0) * 0.5, loan)
+      ? Math.min(num("secondHdbPaydown"), loan)
       : 0;
   const loanUsed = Math.max(loan - secondHdbLoanPaydown, 0);
   const cpf = num("cpfAvailable");
@@ -219,6 +220,22 @@ function getBuyerData(options = {}) {
       { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
     ],
   };
+}
+
+function updateSecondHdbPaydownAutoValue() {
+  const field = $("secondHdbPaydown");
+  if (!field || state.secondHdbPaydownEdited) return;
+
+  if (state.mode !== "both" || $("loanType").value !== "HDB loan") {
+    field.value = money.format(0);
+    return;
+  }
+
+  const seller = getSellerData();
+  const keyedLoan = num("approvedLoan");
+  const maxLoan = num("purchasePrice") * 0.75;
+  const loan = Math.min(keyedLoan, maxLoan);
+  field.value = money.format(Math.min(Math.max(seller.proceeds, 0) * 0.5, loan));
 }
 
 function renderSeller() {
@@ -449,6 +466,7 @@ function openWhatsapp(payload) {
 function updateCommissionVisibility() {
   $("sellerCommissionFields").classList.toggle("muted", !$("sellerCommissionOn").checked);
   $("buyerCommissionFields").classList.toggle("muted", !$("buyerCommissionOn").checked);
+  $("secondHdbPaydownField").classList.toggle("muted", !(state.mode === "both" && $("loanType").value === "HDB loan"));
 }
 
 function updatePanels() {
@@ -458,6 +476,7 @@ function updatePanels() {
 }
 
 function calculate() {
+  updateSecondHdbPaydownAutoValue();
   updateCommissionVisibility();
   if (state.mode === "seller") renderSeller();
   else if (state.mode === "buyer") renderBuyer();
@@ -467,6 +486,7 @@ function calculate() {
 document.querySelectorAll(".mode-btn").forEach((button) => {
   button.addEventListener("click", () => {
     state.mode = button.dataset.mode;
+    if (state.mode !== "both") state.secondHdbPaydownEdited = false;
     document.querySelectorAll(".mode-btn").forEach((item) => item.classList.remove("active"));
     button.classList.add("active");
     updatePanels();
@@ -477,12 +497,19 @@ document.querySelectorAll(".mode-btn").forEach((button) => {
 document.querySelectorAll("input, select").forEach((input) => {
   input.addEventListener("input", () => {
     if (input.id === "valuation") state.valuationEdited = true;
+    if (input.id === "secondHdbPaydown") state.secondHdbPaydownEdited = true;
+    if (["sellingPrice", "sellerLoan", "cpfRefund", "outstandingHip", "bankPenalty", "resaleLevy", "sellerLegal", "sellerMisc", "sellerCommissionRate", "approvedLoan", "purchasePrice"].includes(input.id)) {
+      state.secondHdbPaydownEdited = false;
+    }
     if (input.id === "purchasePrice" && !state.valuationEdited) {
       $("valuation").value = input.value;
     }
     calculate();
   });
-  input.addEventListener("change", calculate);
+  input.addEventListener("change", () => {
+    if (input.id === "loanType") state.secondHdbPaydownEdited = false;
+    calculate();
+  });
 });
 
 document.querySelectorAll(".money-input").forEach((input) => {
