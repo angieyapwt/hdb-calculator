@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HDB Sale & Condo Purchase Calculator</title>
+    <title>HDB Sale & Purchase Calculator</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="app">
       <section class="hero">
         <div>
-          <p class="eyebrow">Singapore upgrader planning tool</p>
-          <h1>Estimate your HDB sale proceeds and private condo purchase cash needed.</h1>
+          <p class="eyebrow">Singapore HDB planning tool</p>
+          <h1>Estimate your HDB sale proceeds or purchase cash needed.</h1>
           <p class="intro">
             A simple calculator for early-stage planning. Figures are estimates and should be verified with HDB, CPF Board, IRAS, your bank, and your conveyancing party before you commit.
           </p>
@@ -23,17 +23,17 @@
         </div>
       </section>
 
-      <section class="workspace" aria-label="HDB sale and private condo purchase calculator">
+      <section class="workspace" aria-label="HDB calculator">
         <div class="toggle-wrap">
-          <button class="mode-btn active" type="button" data-mode="seller">I am selling my HDB</button>
-          <button class="mode-btn" type="button" data-mode="buyer">I am buying Condo</button>
-          <button class="mode-btn" type="button" data-mode="both">Selling HDB and Buying Condo</button>
+          <button class="mode-btn active" type="button" data-mode="seller">I am selling</button>
+          <button class="mode-btn" type="button" data-mode="buyer">I am buying</button>
+          <button class="mode-btn" type="button" data-mode="both">Buying & selling</button>
         </div>
 
         <form class="calculator" id="calculator">
           <section class="form-panel active" id="sellerPanel" aria-label="HDB seller calculator">
             <div class="panel-heading">
-              <h2>HDB seller calculator</h2>
+              <h2>Seller calculator</h2>
               <p>Estimate the cash proceeds after loan, CPF refund, fees, and commission.</p>
             </div>
 
@@ -92,45 +92,48 @@
 
           <section class="form-panel" id="buyerPanel" aria-label="Buyer calculator">
             <div class="panel-heading">
-              <h2>Condo buyer calculator</h2>
-              <p>Estimate cash needed after bank loan, CPF OA, stamp duties, fees, and commission.</p>
+              <h2>Buyer calculator</h2>
+              <p>Estimate cash/CPF required after loan, grants, stamp duty, fees, and commission.</p>
             </div>
 
             <div class="grid">
               <label class="field">
-                <span>Private condo purchase price</span>
-                <input class="money-input" type="text" inputmode="decimal" id="purchasePrice" value="$1,500,000">
+                <span>Purchase price</span>
+                <input class="money-input" type="text" inputmode="decimal" id="purchasePrice" value="$650,000">
               </label>
               <label class="field">
-                <span>Bank / market valuation</span>
-                <input class="money-input" type="text" inputmode="decimal" id="valuation" value="$1,500,000">
-                <small>Loan cap is based on the lower of purchase price and valuation.</small>
+                <span>HDB valuation</span>
+                <input class="money-input" type="text" inputmode="decimal" id="valuation" value="$640,000">
               </label>
               <label class="field">
                 <span>Loan type</span>
                 <select id="loanType">
+                  <option>HDB loan</option>
                   <option>Bank loan</option>
                   <option>No loan</option>
                 </select>
               </label>
               <label class="field">
                 <span>Approved loan amount</span>
-                <input class="money-input" type="text" inputmode="decimal" id="approvedLoan" value="$1,125,000">
-                <small>Calculator caps this at 75% loan-to-value for private residential property.</small>
+                <input class="money-input" type="text" inputmode="decimal" id="approvedLoan" value="$480,000">
+                <small>Calculator caps this at 75% of the purchase price.</small>
               </label>
               <label class="field">
                 <span>Total OA available</span>
-                <input class="money-input" type="text" inputmode="decimal" id="cpfAvailable" value="$200,000">
+                <input class="money-input" type="text" inputmode="decimal" id="cpfAvailable" value="$80,000">
               </label>
               <label class="field">
-                <span>ABSD profile</span>
-                <select id="absdProfile">
-                  <option value="0">SC buying first residential property - 0%</option>
-                  <option value="20">SC buying second residential property - 20%</option>
-                  <option value="5">SPR buying first residential property - 5%</option>
-                  <option value="30">SPR buying second residential property - 30%</option>
+                <span>Total grant</span>
+                <input class="money-input" type="text" inputmode="decimal" id="cpfGrant" value="$0">
+                <small>Subjected to approval from HDB.</small>
+              </label>
+              <label class="field">
+                <span>SPR ABSD</span>
+                <select id="prAbsd">
+                  <option value="0">Not applicable</option>
+                  <option value="5">5%, if applicable</option>
                 </select>
-                <small>ABSD is calculated on the higher of price and market value.</small>
+                <small>ABSD is included here for Singapore PR scenarios only.</small>
               </label>
               <label class="field">
                 <span>Legal fee</span>
@@ -174,7 +177,7 @@
       <section class="cta">
         <div>
           <h2>Want to sense-check your numbers before making the next move?</h2>
-          <p>Share your estimate and get a clearer view of what the numbers may mean for your HDB-to-condo upgrade.</p>
+          <p>Share your estimate and get a clearer view of what the numbers may mean for your next HDB decision.</p>
         </div>
         <button class="cta-button" type="button" id="openLeadForm">Sense check my figures</button>
       </section>

@@ -140,20 +140,18 @@ function getSellerData() {
 function getBuyerData() {
   const purchasePrice = num("purchasePrice");
   const valuation = num("valuation");
-  const loanValue = Math.min(purchasePrice, valuation || purchasePrice);
   const keyedLoan = $("loanType").value === "No loan" ? 0 : num("approvedLoan");
-  const maxLoan = $("loanType").value === "No loan" ? 0 : loanValue * 0.75;
+  const maxLoan = purchasePrice * 0.75;
   const loan = Math.min(keyedLoan, maxLoan);
   const loanShortfall = $("loanType").value === "No loan" ? 0 : Math.max(maxLoan - loan, 0);
   const cpf = num("cpfAvailable");
+  const grant = num("cpfGrant");
   const stampDutyBase = Math.max(purchasePrice, valuation);
   const bsd = buyerStampDuty(stampDutyBase);
-  const absdRate = Number($("absdProfile").value);
-  const absd = stampDutyBase * (absdRate / 100);
+  const absd = purchasePrice * (Number($("prAbsd").value) / 100);
   const legal = num("buyerLegal");
   const misc = num("buyerMisc");
-  const valuationGap = Math.max(purchasePrice - loanValue, 0);
-  const minimumCashDownpayment = $("loanType").value === "No loan" ? purchasePrice : loanValue * 0.05;
+  const cov = Math.max(purchasePrice - valuation, 0);
   const commission = commissionWithGst(
     purchasePrice,
     num("buyerCommissionRate"),
@@ -167,7 +165,8 @@ function getBuyerData() {
     legal +
     misc +
     commission -
-    loan;
+    loan -
+    grant;
 
   const cashNeededAfterCpf = Math.max(totalCashAndCpfNeeded - cpf, 0);
 
@@ -179,20 +178,19 @@ function getBuyerData() {
       { label: "Deduction of OA Amount", value: -cpf },
       { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
       { label: "Purchase price", value: purchasePrice, className: "highlight" },
-      { label: "Bank / market valuation", value: valuation },
-      { label: "Stamp duty basis", value: stampDutyBase },
+      { label: "Cash-over-valuation", value: cov, className: cov > 0 ? "warning" : "" },
+      { label: "BSD basis", value: stampDutyBase },
       { label: "Buyer Stamp Duty", value: bsd },
-      { label: `ABSD at ${absdRate}%`, value: absd, className: absd > 0 ? "warning" : "" },
+      { label: "SPR ABSD", value: absd },
       { label: "Legal fee", value: legal },
       { label: "Miscellaneous fee", value: misc },
       { label: "Agent commission + GST", value: commission },
-      { label: "Max bank loan at 75% LTV", value: maxLoan },
+      { label: "Max loan at 75%", value: maxLoan },
       { label: "Approved loan", value: -loan },
       ...(loanShortfall > 0
         ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
         : []),
-      { label: "Minimum 5% cash downpayment guide", value: minimumCashDownpayment, className: "warning" },
-      { label: "Price above bank valuation", value: valuationGap, className: valuationGap > 0 ? "warning" : "" },
+      { label: "Total grant", value: -grant },
     ],
   };
 }
@@ -223,7 +221,7 @@ function renderBoth() {
   $("resultKicker").textContent = "Estimated net position";
   $("resultTotal").textContent = money.format(net);
   $("quickTotal").textContent = money.format(net);
-  $("quickLabel").textContent = "Estimated balance after using HDB sale proceeds for condo purchase";
+  $("quickLabel").textContent = "Sale proceeds minus purchase requirement";
 
   setGroupedBreakdown([
     {
@@ -252,8 +250,8 @@ function renderBoth() {
 
 function getModeLabel() {
   if (state.mode === "seller") return "Selling";
-  if (state.mode === "buyer") return "Buying private condo";
-  return "Selling HDB and Buying Condo";
+  if (state.mode === "buyer") return "Buying";
+  return "Buying & selling";
 }
 
 function getCurrentEstimate() {
@@ -349,12 +347,13 @@ function fullInputDetails() {
   ];
 
   const buyerInputs = [
-    inputValue("Private condo purchase price", "purchasePrice"),
-    inputValue("Bank / market valuation", "valuation"),
+    inputValue("Purchase price", "purchasePrice"),
+    inputValue("HDB valuation", "valuation"),
     { label: "Loan type", value: $("loanType").value },
     inputValue("Approved loan amount", "approvedLoan"),
     inputValue("Total OA available", "cpfAvailable"),
-    { label: "ABSD profile", value: $("absdProfile").selectedOptions[0].textContent },
+    inputValue("Total grant", "cpfGrant"),
+    { label: "SPR ABSD", value: $("prAbsd").selectedOptions[0].textContent },
     inputValue("Buyer legal fee", "buyerLegal"),
     inputValue("Buyer miscellaneous fee", "buyerMisc"),
     { label: "Buyer agent commission + GST", value: $("buyerCommissionOn").checked ? `${$("buyerCommissionRate").value}%` : "Not included" },
@@ -408,7 +407,7 @@ async function submitLead(payload) {
 
 function openWhatsapp(payload) {
   const message = [
-    "Hi, I used your HDB sale and condo purchase calculator and would like to sense-check my figures.",
+    "Hi, I used your HDB calculator and would like to sense-check my figures.",
     "",
     `Name: ${payload.name}`,
     `WhatsApp: ${payload.phone}`,
