@@ -138,21 +138,39 @@ function getSellerData() {
   };
 }
 
-function getBuyerData() {
+function getBuyerData(options = {}) {
   const purchasePrice = num("purchasePrice");
   const valuation = num("valuation");
   const keyedLoan = $("loanType").value === "No loan" ? 0 : num("approvedLoan");
   const maxLoan = purchasePrice * 0.75;
   const loan = Math.min(keyedLoan, maxLoan);
   const loanShortfall = $("loanType").value === "No loan" ? 0 : Math.max(maxLoan - loan, 0);
+  const secondHdbLoanPaydown =
+    state.mode === "both" && $("loanType").value === "HDB loan"
+      ? Math.min(Math.max(options.sellerProceeds || 0, 0) * 0.5, loan)
+      : 0;
+  const loanUsed = Math.max(loan - secondHdbLoanPaydown, 0);
   const cpf = num("cpfAvailable");
   const grant = num("cpfGrant");
   const stampDutyBase = Math.max(purchasePrice, valuation);
   const bsd = buyerStampDuty(stampDutyBase);
   const absd = purchasePrice * (Number($("prAbsd").value) / 100);
+  const totalStampDuty = bsd + absd;
   const legal = num("buyerLegal");
   const misc = num("buyerMisc");
   const cov = Math.max(purchasePrice - valuation, 0);
+  const hdbDownpayment = purchasePrice * 0.25;
+  const bankCashCpfDownpayment = purchasePrice * 0.2;
+  const bankCashDownpayment = purchasePrice * 0.05;
+  const downpaymentRows =
+    $("loanType").value === "HDB loan"
+      ? [{ label: "25% downpayment by Cash/CPF", value: hdbDownpayment, className: "warning" }]
+      : $("loanType").value === "Bank loan"
+        ? [
+            { label: "20% downpayment by Cash/CPF", value: bankCashCpfDownpayment, className: "warning" },
+            { label: "5% downpayment cash", value: bankCashDownpayment, className: "warning" },
+          ]
+        : [];
   const commission = commissionWithGst(
     purchasePrice,
     num("buyerCommissionRate"),
@@ -166,7 +184,7 @@ function getBuyerData() {
     legal +
     misc +
     commission -
-    loan;
+    loanUsed;
 
   const cashNeededAfterCpf = Math.max(totalCashAndCpfNeeded - cpf - grant, 0);
 
@@ -175,18 +193,26 @@ function getBuyerData() {
     cashNeededAfterCpf,
     rows: [
       { label: "Purchase price", value: purchasePrice, className: "highlight" },
+      ...downpaymentRows,
+      { label: "Max loan at 75%", value: maxLoan },
+      { label: "Approved loan", value: -loan },
+      ...(secondHdbLoanPaydown > 0
+        ? [
+            { label: "Second HDB loan cash proceeds paydown", value: secondHdbLoanPaydown, className: "warning" },
+            { label: "Net loan after paydown", value: -loanUsed },
+          ]
+        : []),
+      ...(loanShortfall > 0
+        ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
+        : []),
       { label: "Cash-over-valuation", value: cov, className: cov > 0 ? "warning" : "" },
       { label: "BSD basis", value: stampDutyBase },
       { label: "Buyer Stamp Duty", value: bsd },
       { label: "SPR ABSD", value: absd },
+      ...(absd > 0 ? [{ label: "Total stamp duty amount", value: totalStampDuty, className: "highlight" }] : []),
       { label: "Legal fee", value: legal },
       { label: "Miscellaneous fee", value: misc },
       { label: "Agent commission + GST", value: commission },
-      { label: "Max loan at 75%", value: maxLoan },
-      { label: "Approved loan", value: -loan },
-      ...(loanShortfall > 0
-        ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
-        : []),
       { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
       { label: "Total grant", value: -grant },
       { label: "Deduction of OA Amount", value: -cpf },
@@ -215,7 +241,7 @@ function renderBuyer() {
 
 function renderBoth() {
   const seller = getSellerData();
-  const buyer = getBuyerData();
+  const buyer = getBuyerData({ sellerProceeds: seller.proceeds });
   const net = seller.proceeds - buyer.required;
 
   $("resultKicker").textContent = "Estimated net position";
@@ -273,7 +299,7 @@ function getCurrentEstimate() {
   }
 
   const seller = getSellerData();
-  const buyer = getBuyerData();
+  const buyer = getBuyerData({ sellerProceeds: seller.proceeds });
   const net = seller.proceeds - buyer.required;
   return {
     mode: getModeLabel(),
@@ -293,7 +319,7 @@ function estimateSummary() {
 
   if (state.mode === "both") {
     const seller = getSellerData();
-    const buyer = getBuyerData();
+    const buyer = getBuyerData({ sellerProceeds: seller.proceeds });
     const net = seller.proceeds - buyer.required;
     const sellerLines = [
       ...seller.rows,
