@@ -166,10 +166,9 @@ function getBuyerData() {
     legal +
     misc +
     commission -
-    loan -
-    grant;
+    loan;
 
-  const cashNeededAfterCpf = Math.max(totalCashAndCpfNeeded - cpf, 0);
+  const cashNeededAfterCpf = Math.max(totalCashAndCpfNeeded - cpf - grant, 0);
 
   return {
     required: totalCashAndCpfNeeded,
@@ -188,9 +187,9 @@ function getBuyerData() {
       ...(loanShortfall > 0
         ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
         : []),
-      { label: "Total grant", value: -grant },
       { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
       { label: "Deduction of OA Amount", value: -cpf },
+      { label: "Total grant", value: -grant },
       { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
     ],
   };
