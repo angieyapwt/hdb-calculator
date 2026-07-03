@@ -1,15 +1,15 @@
 :root {
-  --ink: #142235;
-  --muted: #66758a;
-  --line: #d8e2ef;
-  --paper: #f7fbff;
+  --ink: #12231b;
+  --muted: #65766d;
+  --line: #d8e7de;
+  --paper: #f7fcf8;
   --panel: #ffffff;
-  --primary: #1f5f9f;
-  --primary-dark: #123f6f;
-  --blue: #2677bd;
+  --primary: #16834a;
+  --primary-dark: #0b5d34;
+  --blue: #16834a;
   --amber: #b9792a;
-  --soft: #edf6ff;
-  --shadow: 0 22px 60px rgba(20, 34, 53, 0.13);
+  --soft: #ecf8f0;
+  --shadow: 0 22px 60px rgba(18, 35, 27, 0.13);
 }
 
 * {
@@ -21,7 +21,7 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background:
-    linear-gradient(135deg, rgba(31, 95, 159, 0.12), rgba(76, 141, 204, 0.08)),
+    linear-gradient(135deg, rgba(22, 131, 74, 0.12), rgba(89, 171, 111, 0.08)),
     var(--paper);
 }
 
@@ -84,7 +84,7 @@ h1 {
 .calculator,
 .cta {
   background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(216, 226, 239, 0.95);
+  border: 1px solid rgba(216, 231, 222, 0.95);
   box-shadow: var(--shadow);
 }
 
@@ -118,7 +118,7 @@ h1 {
   grid-template-columns: repeat(3, 1fr);
   width: min(680px, 100%);
   padding: 4px;
-  background: #eaf3fc;
+  background: #e9f6ed;
   border: 1px solid var(--line);
   border-radius: 8px;
 }
@@ -136,7 +136,7 @@ h1 {
 .mode-btn.active {
   background: var(--panel);
   color: var(--primary-dark);
-  box-shadow: 0 8px 18px rgba(20, 34, 53, 0.1);
+  box-shadow: 0 8px 18px rgba(18, 35, 27, 0.1);
 }
 
 .calculator,
@@ -218,7 +218,7 @@ h1 {
 .field select:focus,
 .field textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(31, 95, 159, 0.16);
+  box-shadow: 0 0 0 3px rgba(22, 131, 74, 0.16);
 }
 
 .field textarea {
@@ -262,7 +262,7 @@ h1 {
   height: 26px;
   flex: 0 0 auto;
   border-radius: 999px;
-  background: #b9c8d8;
+  background: #b7cbbc;
   transition: 0.2s ease;
 }
 
@@ -276,7 +276,7 @@ h1 {
   border-radius: 50%;
   background: #fff;
   transition: 0.2s ease;
-  box-shadow: 0 2px 5px rgba(20, 34, 53, 0.2);
+  box-shadow: 0 2px 5px rgba(18, 35, 27, 0.2);
 }
 
 .switch input:checked + span {
@@ -380,7 +380,7 @@ h1 {
   margin-top: 22px;
   padding: 14px;
   border-radius: 8px;
-  background: #f3f8fd;
+  background: #f1f8f3;
   color: var(--muted);
   font-size: 0.86rem;
   line-height: 1.5;
@@ -436,7 +436,7 @@ h1 {
   display: grid;
   place-items: center;
   padding: 18px;
-  background: rgba(20, 34, 53, 0.56);
+  background: rgba(18, 35, 27, 0.56);
 }
 
 .modal-backdrop[hidden] {
@@ -489,7 +489,7 @@ h1 {
   gap: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f7fbff;
+  background: #f7fcf8;
   padding: 14px;
 }
 
