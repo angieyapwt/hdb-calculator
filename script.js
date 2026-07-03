@@ -4,6 +4,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfJ-p_WtksPV
 
 const state = {
   mode: "seller",
+  valuationEdited: false,
 };
 
 const money = new Intl.NumberFormat("en-SG", {
@@ -174,9 +175,6 @@ function getBuyerData() {
     required: totalCashAndCpfNeeded,
     cashNeededAfterCpf,
     rows: [
-      { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
-      { label: "Deduction of OA Amount", value: -cpf },
-      { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
       { label: "Purchase price", value: purchasePrice, className: "highlight" },
       { label: "Cash-over-valuation", value: cov, className: cov > 0 ? "warning" : "" },
       { label: "BSD basis", value: stampDutyBase },
@@ -191,6 +189,9 @@ function getBuyerData() {
         ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
         : []),
       { label: "Total grant", value: -grant },
+      { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
+      { label: "Deduction of OA Amount", value: -cpf },
+      { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
     ],
   };
 }
@@ -240,10 +241,7 @@ function renderBoth() {
     },
     {
       title: "Buying",
-      rows: [
-        ...buyer.rows,
-        { label: "Estimated purchase requirement", value: buyer.required, className: "highlight" },
-      ],
+      rows: buyer.rows,
     },
   ]);
 }
@@ -286,7 +284,6 @@ function getCurrentEstimate() {
       ...seller.rows,
       { label: "Estimated sale proceeds", value: seller.proceeds },
       ...buyer.rows,
-      { label: "Estimated purchase requirement", value: buyer.required },
       { label: "Estimated net balance", value: net },
     ],
   };
@@ -308,15 +305,13 @@ function estimateSummary() {
     return [
       `Mode: ${estimate.mode}`,
       `${estimate.resultLabel}: ${estimate.resultTotal}`,
-      `Estimated purchase requirement: ${money.format(buyer.required)}`,
-      `Deduction of OA Amount: ${money.format(-num("cpfAvailable"))}`,
-      `Top up requirement: ${money.format(buyer.cashNeededAfterCpf)}`,
-      `Estimated net balance: ${money.format(net)}`,
       "",
       ...sellerLines.map((row) => `${row.label}: ${money.format(row.value)}`),
       "",
       "",
       ...buyerLines.map((row) => `${row.label}: ${money.format(row.value)}`),
+      "",
+      `Estimated net balance: ${money.format(net)}`,
     ].join("\n");
   }
 
@@ -455,7 +450,13 @@ document.querySelectorAll(".mode-btn").forEach((button) => {
 });
 
 document.querySelectorAll("input, select").forEach((input) => {
-  input.addEventListener("input", calculate);
+  input.addEventListener("input", () => {
+    if (input.id === "valuation") state.valuationEdited = true;
+    if (input.id === "purchasePrice" && !state.valuationEdited) {
+      $("valuation").value = input.value;
+    }
+    calculate();
+  });
   input.addEventListener("change", calculate);
 });
 
@@ -465,6 +466,9 @@ document.querySelectorAll(".money-input").forEach((input) => {
   });
   input.addEventListener("blur", () => {
     formatMoneyInput(input);
+    if (input.id === "purchasePrice" && !state.valuationEdited) {
+      $("valuation").value = input.value;
+    }
     calculate();
   });
   formatMoneyInput(input);
