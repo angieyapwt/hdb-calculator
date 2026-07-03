@@ -140,50 +140,59 @@ function getSellerData() {
 function getBuyerData() {
   const purchasePrice = num("purchasePrice");
   const valuation = num("valuation");
+  const loanValue = Math.min(purchasePrice, valuation || purchasePrice);
   const keyedLoan = $("loanType").value === "No loan" ? 0 : num("approvedLoan");
-  const maxLoan = purchasePrice * 0.75;
+  const maxLoan = $("loanType").value === "No loan" ? 0 : loanValue * 0.75;
   const loan = Math.min(keyedLoan, maxLoan);
   const loanShortfall = $("loanType").value === "No loan" ? 0 : Math.max(maxLoan - loan, 0);
   const cpf = num("cpfAvailable");
-  const grant = num("cpfGrant");
   const stampDutyBase = Math.max(purchasePrice, valuation);
   const bsd = buyerStampDuty(stampDutyBase);
-  const absd = purchasePrice * (Number($("prAbsd").value) / 100);
+  const absdRate = Number($("absdProfile").value);
+  const absd = stampDutyBase * (absdRate / 100);
   const legal = num("buyerLegal");
   const misc = num("buyerMisc");
-  const cov = Math.max(purchasePrice - valuation, 0);
+  const valuationGap = Math.max(purchasePrice - loanValue, 0);
+  const minimumCashDownpayment = $("loanType").value === "No loan" ? purchasePrice : loanValue * 0.05;
   const commission = commissionWithGst(
     purchasePrice,
     num("buyerCommissionRate"),
     $("buyerCommissionOn").checked
   );
 
-  const required =
+  const totalCashAndCpfNeeded =
     purchasePrice +
     bsd +
     absd +
     legal +
     misc +
     commission -
-    loan -
-    grant;
+    loan;
+
+  const cashNeededAfterCpf = Math.max(totalCashAndCpfNeeded - cpf, 0);
 
   return {
-    required,
+    required: totalCashAndCpfNeeded,
+    cashNeededAfterCpf,
     rows: [
+      { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
+      { label: "Deduction of OA Amount", value: -cpf },
+      { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
       { label: "Purchase price", value: purchasePrice, className: "highlight" },
-      { label: "Cash-over-valuation", value: cov, className: cov > 0 ? "warning" : "" },
-      { label: "BSD basis", value: stampDutyBase },
+      { label: "Bank / market valuation", value: valuation },
+      { label: "Stamp duty basis", value: stampDutyBase },
       { label: "Buyer Stamp Duty", value: bsd },
-      { label: "SPR ABSD", value: absd },
+      { label: `ABSD at ${absdRate}%`, value: absd, className: absd > 0 ? "warning" : "" },
       { label: "Legal fee", value: legal },
       { label: "Miscellaneous fee", value: misc },
       { label: "Agent commission + GST", value: commission },
-      { label: "Max loan at 75%", value: maxLoan },
+      { label: "Max bank loan at 75% LTV", value: maxLoan },
       { label: "Approved loan", value: -loan },
-      { label: "Loan shortfall to be funded", value: loanShortfall, className: loanShortfall > 0 ? "warning" : "" },
-      { label: "Total grant", value: -grant },
-      { label: "Total OA available", value: cpf },
+      ...(loanShortfall > 0
+        ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
+        : []),
+      { label: "Minimum 5% cash downpayment guide", value: minimumCashDownpayment, className: "warning" },
+      { label: "Price above bank valuation", value: valuationGap, className: valuationGap > 0 ? "warning" : "" },
     ],
   };
 }
@@ -199,10 +208,10 @@ function renderSeller() {
 
 function renderBuyer() {
   const buyer = getBuyerData();
-  $("resultKicker").textContent = "Estimated buyer cash / CPF required";
+  $("resultKicker").textContent = "Estimated purchase requirement";
   $("resultTotal").textContent = money.format(buyer.required);
   $("quickTotal").textContent = money.format(buyer.required);
-  $("quickLabel").textContent = "Estimated amount required";
+  $("quickLabel").textContent = "Estimated purchase requirement";
   setBreakdown(buyer.rows);
 }
 
@@ -214,7 +223,7 @@ function renderBoth() {
   $("resultKicker").textContent = "Estimated net position";
   $("resultTotal").textContent = money.format(net);
   $("quickTotal").textContent = money.format(net);
-  $("quickLabel").textContent = "Sale proceeds minus purchase requirement";
+  $("quickLabel").textContent = "Estimated balance after using HDB sale proceeds for condo purchase";
 
   setGroupedBreakdown([
     {
@@ -243,8 +252,8 @@ function renderBoth() {
 
 function getModeLabel() {
   if (state.mode === "seller") return "Selling";
-  if (state.mode === "buyer") return "Buying";
-  return "Buying & selling";
+  if (state.mode === "buyer") return "Buying private condo";
+  return "Selling HDB and Buying Condo";
 }
 
 function getCurrentEstimate() {
@@ -262,7 +271,7 @@ function getCurrentEstimate() {
     const buyer = getBuyerData();
     return {
       mode: getModeLabel(),
-      resultLabel: "Estimated buyer cash / CPF required",
+      resultLabel: "Estimated purchase requirement",
       resultTotal: money.format(buyer.required),
       rows: buyer.rows,
     };
@@ -302,6 +311,8 @@ function estimateSummary() {
       `Mode: ${estimate.mode}`,
       `${estimate.resultLabel}: ${estimate.resultTotal}`,
       `Estimated purchase requirement: ${money.format(buyer.required)}`,
+      `Deduction of OA Amount: ${money.format(-num("cpfAvailable"))}`,
+      `Top up requirement: ${money.format(buyer.cashNeededAfterCpf)}`,
       `Estimated net balance: ${money.format(net)}`,
       "",
       ...sellerLines.map((row) => `${row.label}: ${money.format(row.value)}`),
@@ -338,13 +349,12 @@ function fullInputDetails() {
   ];
 
   const buyerInputs = [
-    inputValue("Purchase price", "purchasePrice"),
-    inputValue("HDB valuation", "valuation"),
+    inputValue("Private condo purchase price", "purchasePrice"),
+    inputValue("Bank / market valuation", "valuation"),
     { label: "Loan type", value: $("loanType").value },
     inputValue("Approved loan amount", "approvedLoan"),
     inputValue("Total OA available", "cpfAvailable"),
-    inputValue("Total grant", "cpfGrant"),
-    { label: "SPR ABSD", value: $("prAbsd").selectedOptions[0].textContent },
+    { label: "ABSD profile", value: $("absdProfile").selectedOptions[0].textContent },
     inputValue("Buyer legal fee", "buyerLegal"),
     inputValue("Buyer miscellaneous fee", "buyerMisc"),
     { label: "Buyer agent commission + GST", value: $("buyerCommissionOn").checked ? `${$("buyerCommissionRate").value}%` : "Not included" },
@@ -398,7 +408,7 @@ async function submitLead(payload) {
 
 function openWhatsapp(payload) {
   const message = [
-    "Hi, I used your HDB calculator and would like to sense-check my figures.",
+    "Hi, I used your HDB sale and condo purchase calculator and would like to sense-check my figures.",
     "",
     `Name: ${payload.name}`,
     `WhatsApp: ${payload.phone}`,
