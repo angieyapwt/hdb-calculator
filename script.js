@@ -26,6 +26,10 @@ function num(id) {
 }
 
 function formatMoneyInput(input) {
+  if (String(input.value || "").trim() === "") {
+    input.value = "";
+    return;
+  }
   input.value = money.format(Math.max(cleanNumber(input.value), 0));
 }
 
@@ -59,8 +63,9 @@ function buyerStampDuty(amount) {
   return Math.floor(Math.max(duty, amount > 0 ? 1 : 0));
 }
 
-function commissionWithGst(base, rate, enabled) {
+function commissionWithGst(base, rate, enabled, overrideAmount = 0) {
   if (!enabled) return 0;
+  if (overrideAmount > 0) return overrideAmount;
   const commission = base * (rate / 100);
   return commission + commission * GST_RATE;
 }
@@ -109,7 +114,8 @@ function getSellerData() {
   const commission = commissionWithGst(
     sellingPrice,
     num("sellerCommissionRate"),
-    $("sellerCommissionOn").checked
+    $("sellerCommissionOn").checked,
+    num("sellerCommissionAmount")
   );
 
   const proceeds =
@@ -175,7 +181,8 @@ function getBuyerData(options = {}) {
   const commission = commissionWithGst(
     purchasePrice,
     num("buyerCommissionRate"),
-    $("buyerCommissionOn").checked
+    $("buyerCommissionOn").checked,
+    num("buyerCommissionAmount")
   );
 
   const totalCashAndCpfNeeded =
@@ -227,7 +234,7 @@ function updateSecondHdbPaydownAutoValue() {
   if (!field || state.secondHdbPaydownEdited) return;
 
   if (state.mode !== "both" || $("loanType").value !== "HDB loan") {
-    field.value = money.format(0);
+    field.value = "";
     return;
   }
 
@@ -381,6 +388,7 @@ function fullInputDetails() {
     inputValue("Seller legal fee", "sellerLegal"),
     inputValue("Seller miscellaneous fee", "sellerMisc"),
     { label: "Seller agent commission + GST", value: $("sellerCommissionOn").checked ? `${$("sellerCommissionRate").value}%` : "Not included" },
+    inputValue("Seller commission amount override", "sellerCommissionAmount"),
   ];
 
   const buyerInputs = [
@@ -394,6 +402,7 @@ function fullInputDetails() {
     inputValue("Buyer legal fee", "buyerLegal"),
     inputValue("Buyer miscellaneous fee", "buyerMisc"),
     { label: "Buyer agent commission + GST", value: $("buyerCommissionOn").checked ? `${$("buyerCommissionRate").value}%` : "Not included" },
+    inputValue("Buyer commission amount override", "buyerCommissionAmount"),
   ];
 
   if (state.mode === "seller") return sellerInputs;
@@ -496,9 +505,10 @@ document.querySelectorAll(".mode-btn").forEach((button) => {
 
 document.querySelectorAll("input, select").forEach((input) => {
   input.addEventListener("input", () => {
+    if (input.classList.contains("money-input")) formatMoneyInput(input);
     if (input.id === "valuation") state.valuationEdited = true;
     if (input.id === "secondHdbPaydown") state.secondHdbPaydownEdited = true;
-    if (["sellingPrice", "sellerLoan", "cpfRefund", "outstandingHip", "bankPenalty", "resaleLevy", "sellerLegal", "sellerMisc", "sellerCommissionRate", "approvedLoan", "purchasePrice"].includes(input.id)) {
+    if (["sellingPrice", "sellerLoan", "cpfRefund", "outstandingHip", "bankPenalty", "resaleLevy", "sellerLegal", "sellerMisc", "sellerCommissionRate", "sellerCommissionAmount", "sellerCommissionOn", "approvedLoan", "purchasePrice"].includes(input.id)) {
       state.secondHdbPaydownEdited = false;
     }
     if (input.id === "purchasePrice" && !state.valuationEdited) {
@@ -513,9 +523,6 @@ document.querySelectorAll("input, select").forEach((input) => {
 });
 
 document.querySelectorAll(".money-input").forEach((input) => {
-  input.addEventListener("focus", () => {
-    input.value = cleanNumber(input.value) || "";
-  });
   input.addEventListener("blur", () => {
     formatMoneyInput(input);
     if (input.id === "purchasePrice" && !state.valuationEdited) {

@@ -40,15 +40,15 @@
             <div class="grid">
               <label class="field">
                 <span>Selling price</span>
-                <input class="money-input" type="text" inputmode="decimal" id="sellingPrice" value="$650,000">
+                <input class="money-input" type="text" inputmode="decimal" id="sellingPrice" value="">
               </label>
               <label class="field">
                 <span>Outstanding loan</span>
-                <input class="money-input" type="text" inputmode="decimal" id="sellerLoan" value="$220,000">
+                <input class="money-input" type="text" inputmode="decimal" id="sellerLoan" value="">
               </label>
               <label class="field">
                 <span>CPF refund with accrued interest</span>
-                <input class="money-input" type="text" inputmode="decimal" id="cpfRefund" value="$180,000">
+                <input class="money-input" type="text" inputmode="decimal" id="cpfRefund" value="">
               </label>
               <label class="field">
                 <span>Outstanding HIP, if any</span>
@@ -83,8 +83,13 @@
               <div class="commission-fields" id="sellerCommissionFields">
                 <label class="field compact">
                   <span>Commission rate</span>
-                  <input type="number" min="0" step="0.1" inputmode="decimal" id="sellerCommissionRate" value="2">
+                  <input type="number" min="0" step="0.1" inputmode="decimal" id="sellerCommissionRate" value="">
                   <small>% of selling price, with 9% GST added.</small>
+                </label>
+                <label class="field compact">
+                  <span>Commission amount</span>
+                  <input class="money-input" type="text" inputmode="decimal" id="sellerCommissionAmount" value="">
+                  <small>Optional. If filled, this amount is used instead of the rate.</small>
                 </label>
               </div>
             </div>
@@ -99,11 +104,11 @@
             <div class="grid">
               <label class="field">
                 <span>Purchase price</span>
-                <input class="money-input" type="text" inputmode="decimal" id="purchasePrice" value="$650,000">
+                <input class="money-input" type="text" inputmode="decimal" id="purchasePrice" value="">
               </label>
               <label class="field">
                 <span>HDB valuation</span>
-                <input class="money-input" type="text" inputmode="decimal" id="valuation" value="$650,000">
+                <input class="money-input" type="text" inputmode="decimal" id="valuation" value="">
               </label>
               <label class="field">
                 <span>Loan type</span>
@@ -116,17 +121,17 @@
               </label>
               <label class="field">
                 <span>Approved loan amount</span>
-                <input class="money-input" type="text" inputmode="decimal" id="approvedLoan" value="$480,000">
+                <input class="money-input" type="text" inputmode="decimal" id="approvedLoan" value="">
                 <small>Calculator caps this at 75% of the purchase price.</small>
               </label>
               <label class="field second-hdb-field" id="secondHdbPaydownField">
                 <span>Second HDB loan cash proceeds paydown</span>
-                <input class="money-input" type="text" inputmode="decimal" id="secondHdbPaydown" value="$0">
+                <input class="money-input" type="text" inputmode="decimal" id="secondHdbPaydown" value="">
                 <small>Auto-calculated as 50% of estimated cash sale proceeds for buying & selling with HDB loan. You can edit if needed.</small>
               </label>
               <label class="field">
                 <span>Total OA available</span>
-                <input class="money-input" type="text" inputmode="decimal" id="cpfAvailable" value="$80,000">
+                <input class="money-input" type="text" inputmode="decimal" id="cpfAvailable" value="">
                 <small>Can leave up to $20k for HDB loan. The rest must clear.</small>
               </label>
               <label class="field">
@@ -163,8 +168,13 @@
               <div class="commission-fields muted" id="buyerCommissionFields">
                 <label class="field compact">
                   <span>Commission rate</span>
-                  <input type="number" min="0" step="0.1" inputmode="decimal" id="buyerCommissionRate" value="1">
+                  <input type="number" min="0" step="0.1" inputmode="decimal" id="buyerCommissionRate" value="">
                   <small>% of purchase price, with 9% GST added.</small>
+                </label>
+                <label class="field compact">
+                  <span>Commission amount</span>
+                  <input class="money-input" type="text" inputmode="decimal" id="buyerCommissionAmount" value="">
+                  <small>Optional. If filled, this amount is used instead of the rate.</small>
                 </label>
               </div>
             </div>
@@ -252,7 +262,7 @@
       </div>
     </main>
 
-    <script src="script.js?v=20260703-5"></script>
+    <script src="script.js?v=20260706-2"></script>
   </body>
 </html>
 
