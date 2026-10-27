@@ -109,6 +109,7 @@
               <label class="field">
                 <span>HDB valuation</span>
                 <input class="money-input" type="text" inputmode="decimal" id="valuation" value="">
+                <small>Cash-over-valuation must be paid in cash; CPF and housing grants cannot cover this gap. Leave blank to use the purchase price.</small>
               </label>
               <label class="field">
                 <span>Loan type</span>
@@ -122,7 +123,7 @@
               <label class="field">
                 <span>Approved loan amount</span>
                 <input class="money-input" type="text" inputmode="decimal" id="approvedLoan" value="">
-                <small>Calculator caps this at 75% of the purchase price.</small>
+                <small>Calculator caps this at 75% of the lower of purchase price and HDB valuation.</small>
               </label>
               <label class="field second-hdb-field" id="secondHdbPaydownField">
                 <span>Second HDB loan cash proceeds paydown</span>
@@ -262,7 +263,8 @@
       </div>
     </main>
 
-    <script src="script.js?v=20260706-3"></script>
+    <script src="script.js?v=20261027-1"></script>
   </body>
 </html>
+
 

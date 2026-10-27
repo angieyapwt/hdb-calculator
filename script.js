@@ -145,11 +145,16 @@ function getSellerData() {
   };
 }
 
+function hasKeyedAmount(id) {
+  return /\d/.test(String($(id).value || ""));
+}
+
 function getBuyerData(options = {}) {
   const purchasePrice = num("purchasePrice");
-  const valuation = num("valuation");
+  const valuation = hasKeyedAmount("valuation") ? num("valuation") : purchasePrice;
+  const loanValue = Math.min(purchasePrice, valuation);
   const keyedLoan = $("loanType").value === "No loan" ? 0 : num("approvedLoan");
-  const maxLoan = purchasePrice * 0.75;
+  const maxLoan = $("loanType").value === "No loan" ? 0 : loanValue * 0.75;
   const loan = Math.min(keyedLoan, maxLoan);
   const loanShortfall = $("loanType").value === "No loan" ? 0 : Math.max(maxLoan - loan, 0);
   const secondHdbLoanPaydown =
@@ -166,9 +171,9 @@ function getBuyerData(options = {}) {
   const legal = num("buyerLegal");
   const misc = num("buyerMisc");
   const cov = Math.max(purchasePrice - valuation, 0);
-  const hdbDownpayment = purchasePrice * 0.25;
-  const bankCashCpfDownpayment = purchasePrice * 0.2;
-  const bankCashDownpayment = purchasePrice * 0.05;
+  const hdbDownpayment = loanValue * 0.25;
+  const bankCashCpfDownpayment = loanValue * 0.2;
+  const bankCashDownpayment = loanValue * 0.05;
   const downpaymentRows =
     $("loanType").value === "HDB loan"
       ? [{ label: "25% downpayment by Cash/CPF", value: hdbDownpayment, className: "warning" }]
@@ -194,7 +199,12 @@ function getBuyerData(options = {}) {
     commission -
     loanUsed;
 
-  const cashNeededAfterCpf = Math.max(totalCashAndCpfNeeded - cpf - grant, 0);
+  const cashOnlyCosts = cov + misc + commission +
+    ($("loanType").value === "Bank loan" ? bankCashDownpayment : 0);
+  const cpfEligibleNeeded = Math.max(totalCashAndCpfNeeded - cashOnlyCosts, 0);
+  const grantUsed = Math.min(grant, cpfEligibleNeeded);
+  const cpfUsed = Math.min(cpf, Math.max(cpfEligibleNeeded - grantUsed, 0));
+  const cashNeededAfterCpf = cashOnlyCosts + Math.max(cpfEligibleNeeded - grantUsed - cpfUsed, 0);
 
   return {
     required: totalCashAndCpfNeeded,
@@ -202,7 +212,7 @@ function getBuyerData(options = {}) {
     rows: [
       { label: "Purchase price", value: purchasePrice, className: "highlight" },
       ...downpaymentRows,
-      { label: "Max loan at 75%", value: maxLoan },
+      { label: "Max loan at 75% of lower price / valuation", value: maxLoan },
       { label: "Approved loan", value: -loan },
       ...(secondHdbLoanPaydown > 0
         ? [
@@ -213,7 +223,7 @@ function getBuyerData(options = {}) {
       ...(loanShortfall > 0
         ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
         : []),
-      { label: "Cash-over-valuation", value: cov, className: cov > 0 ? "warning" : "" },
+      { label: "Cash-over-valuation (cash only)", value: cov, className: cov > 0 ? "warning" : "" },
       { label: "BSD basis", value: stampDutyBase },
       { label: "Buyer Stamp Duty", value: bsd },
       { label: "SPR ABSD", value: absd },
@@ -222,8 +232,8 @@ function getBuyerData(options = {}) {
       { label: "Miscellaneous fee", value: misc },
       { label: "Agent commission + GST", value: commission },
       { label: "Estimated purchase requirement", value: totalCashAndCpfNeeded, className: "highlight" },
-      { label: "Total grant", value: -grant },
-      { label: "Deduction of OA Amount", value: -cpf },
+      { label: "Grant used", value: -grantUsed },
+      { label: "CPF OA used", value: -cpfUsed },
       { label: "Top up requirement", value: cashNeededAfterCpf, className: "highlight" },
     ],
   };
@@ -240,7 +250,9 @@ function updateSecondHdbPaydownAutoValue() {
 
   const seller = getSellerData();
   const keyedLoan = num("approvedLoan");
-  const maxLoan = num("purchasePrice") * 0.75;
+  const purchasePrice = num("purchasePrice");
+  const valuation = hasKeyedAmount("valuation") ? num("valuation") : purchasePrice;
+  const maxLoan = Math.min(purchasePrice, valuation) * 0.75;
   const loan = Math.min(keyedLoan, maxLoan);
   field.value = money.format(Math.min(Math.max(seller.proceeds, 0) * 0.5, loan));
 }
@@ -581,3 +593,4 @@ $("leadForm").addEventListener("submit", async (event) => {
 
 updatePanels();
 calculate();
+
