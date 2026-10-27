@@ -212,6 +212,7 @@ function getBuyerData(options = {}) {
     rows: [
       { label: "Purchase price", value: purchasePrice, className: "highlight" },
       ...downpaymentRows,
+      { label: "Cash-over-valuation (cash only)", value: cov, className: cov > 0 ? "warning" : "" },
       { label: "Max loan at 75% of lower price / valuation", value: maxLoan },
       { label: "Approved loan", value: -loan },
       ...(secondHdbLoanPaydown > 0
@@ -223,7 +224,7 @@ function getBuyerData(options = {}) {
       ...(loanShortfall > 0
         ? [{ label: "Loan shortfall to be funded", value: loanShortfall, className: "warning" }]
         : []),
-      { label: "Cash-over-valuation (cash only)", value: cov, className: cov > 0 ? "warning" : "" },
+      { label: "Cash top up for Loan", value: $("loanType").value === "No loan" ? 0 : Math.max(purchasePrice * 0.75 - valuation * 0.75, 0), className: cov > 0 ? "warning" : "" },
       { label: "BSD basis", value: stampDutyBase },
       { label: "Buyer Stamp Duty", value: bsd },
       { label: "SPR ABSD", value: absd },
